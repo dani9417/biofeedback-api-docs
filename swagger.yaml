@@ -182,7 +182,72 @@ paths:
             items:
               type: string
 
-  /measurement/data/{measurementId}:
+  /measurement/{measurementId}/scene:
+    get:
+      summary: All Scenes of a Measurement by Id
+      description: All Scenes of a Measurement by Id
+      tags:
+        - Measurement
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: measurementId
+          required: true
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Scene'
+  /measurement/{measurementId}/scene/{sceneId}:
+    put:
+      summary: Assigns Scene with "SceneId" to Measurement
+      description: Assigns Scene with "SceneId" to Measurement
+      tags:
+        - Scene
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: measurementId
+          required: true
+          type: integer
+          format: int64
+        - in: path
+          name: sceneId
+          required: true
+          type: integer
+          format: int64
+      responses:
+        201:
+          description: OK
+          schema:
+            $ref: '#/definitions/Scene'
+    delete:
+      summary: Removes Scene with "SceneId" from Measurement
+      description: Removes Scene with "SceneId" from Measurement
+      tags:
+        - Scene
+      parameters:
+        - in: path
+          name: measurementId
+          required: true
+          type: integer
+          format: int64
+        - in: path
+          name: sceneId
+          required: true
+          type: integer
+          format: int64
+      responses:
+        204:
+          description: OK
+
+  /measurement/{measurementId}/data:
     get:
       tags:
         - Measurement
@@ -218,13 +283,36 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: '#/definitions/Video'
+            $ref: '#/definitions/VideoUpdate'
           required: true
       responses:
         201:
           description: OK
 
   /video/{videoId}:
+    put:
+      summary: Updates a Video by Id from body
+      description: Updates a Video by Id from body
+      tags:
+        - Video
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: videoId
+          type: integer
+          format: int64
+          required: true
+        - in: body
+          name: body
+          schema:
+            $ref: '#/definitions/VideoUpdate'
+      responses:
+        201:
+          description: OK
+
     get:
       summary: Returns a Video by Id
       description: Returns a Video by Id
@@ -243,6 +331,120 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Video'
+    delete:
+      summary: Deletes a Video by it's Id
+      description: Deletes a Video by it's Id
+      tags:
+        - Video
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: videoId
+          type: integer
+          format: int64
+          required: true
+      responses:
+        204:
+          description: OK
+  /scene:
+    get:
+      summary: Returns all Scenes
+      description: Returns all Scenes
+      tags:
+        - Scene
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Scene'
+    post:
+      summary: Creates a new Scene
+      description: Creates a new Scene
+      tags:
+        - Scene
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/SceneUpdate'
+      responses:
+        201:
+          description: OK
+          schema:
+            $ref: '#/definitions/Scene'
+  /scene/{sceneId}/video/{videoId}:
+    put:
+      summary: Assigns video with "VideoId" to Scene
+      description: Assigns video with "VideoId" to Scene
+      tags:
+        - Video
+        - Scene
+      parameters:
+        - in: path
+          name: sceneId
+          required: true
+          type: integer
+          format: int64
+        - in: path
+          name: videoId
+          required: true
+          type: integer
+          format: int64
+      responses:
+        201:
+          description: OK
+          schema:
+            $ref: '#/definitions/Video'
+    delete:
+      summary: Removes video with "VideoId" from Scene
+      description: Removes video with "VideoId" from Scene
+      tags:
+        - Video
+        - Scene
+      parameters:
+        - in: path
+          name: sceneId
+          required: true
+          type: integer
+          format: int64
+        - in: path
+          name: videoId
+          required: true
+          type: integer
+          format: int64
+      responses:
+        204:
+          description: OK
+
+  /scene/{sceneId}/measurements:
+    get:
+      summary: All measurements of a Scene by Id
+      description: All measurements of a Scene by Id
+      tags:
+        - Scene
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: sceneId
+          required: true
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: OK
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Measurement'
 
 tags:
   - name: User
@@ -285,6 +487,25 @@ definitions:
               type: string
             label:
               type: string
+  VideoUpdate:
+    type: object
+    properties:
+      name:
+        type: string
+      sceneId:
+        type: integer
+        format: int64
+      videoUrl:
+        type: string
+      labels:
+        type: array
+        items:
+          type: object
+          properties:
+            timestamp:
+              type: string
+            label:
+              type: string
   Institution:
     type: object
     properties:
@@ -305,6 +526,15 @@ definitions:
         format: int64
       name:
         type: string
+      description:
+        type: string
+  SceneUpdate:
+    type: object
+    properties:
+      name:
+        type: string
+      description:
+        type: string
   Deck:
     type: object
     properties:
@@ -314,6 +544,8 @@ definitions:
       title:
         type: string
       filePath:
+        type: string
+      description:
         type: string
   Role:
     type: object
